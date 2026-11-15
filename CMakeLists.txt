@@ -54,6 +54,7 @@ psxrecomp_add_game_runtime(psx-runtime
     CODEGEN_SETUP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/codegen_setup.c"
     # Trusted mod plugins written for this project (original code, no game content).
     EXTRAS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/skip_intro.c"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/loadq_trace.c"
 )
 
 # Stage runtime configs next to the exe for direct build/ launches. Only copy

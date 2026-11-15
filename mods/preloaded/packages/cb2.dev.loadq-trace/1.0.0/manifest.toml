@@ -1,0 +1,23 @@
+format_version = 6
+id = "cb2.dev.loadq-trace"
+version = "1.0.0"
+name = "Load Queue Trace"
+author = "Cool Boarders 2 Recompiled"
+description = "Developer diagnostic. Logs the game's background disc-load queue every frame it changes to cb2_loadq_trace.log next to the executable, to find what the boot black screen waits for. Read-only; never shipped."
+resolver = "declarative"
+save_compatibility = "shared"
+
+[[target]]
+game_id = "SCUS-94358"
+
+[[feature]]
+id = "loadq-trace"
+name = "Load Queue Trace"
+description = "Write cb2_loadq_trace.log during the first ~100 seconds of play."
+group = "Developer"
+channel = "developer"
+default_enabled = false
+
+[[plugin]]
+feature = "loadq-trace"
+id = "cb2.loadq-trace"

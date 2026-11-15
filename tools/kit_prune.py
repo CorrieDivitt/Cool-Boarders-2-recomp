@@ -19,6 +19,12 @@ PRUNE_DIRS = [
     "psxrecomp/recompiler/build",        # developer's emitter build (absolute local paths)
 ]
 KEEP_CONSOLE = "psx"                     # recomp-ui/assets/consoles/<console>: only PlayStation is used
+# recomp-ui's PlayStation profile shows the PlayStation logo (a Sony trademark).
+# The player's build requires a file of that name, so it is replaced with the
+# project's own emblem rather than deleted. The launcher shows the emblem anyway
+# (LAUNCHER_BRAND in CMakeLists.txt); this keeps the logo out of the zip.
+TRADEMARK_FILES = ["brand_psx.tga"]
+OWN_EMBLEM = "assets/launcher_brand.tga"
 
 
 def main():
@@ -38,6 +44,14 @@ def main():
                 removed += sum(len(f) for _, _, f in os.walk(p))
                 shutil.rmtree(p)
                 print("pruned recomp-ui/assets/consoles/" + name)
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", OWN_EMBLEM), "rb") as f:
+        emblem = f.read()
+    for dp, _dn, fn in os.walk(stage):
+        for f in fn:
+            if f.lower() in TRADEMARK_FILES:
+                with open(os.path.join(dp, f), "wb") as out_f:
+                    out_f.write(emblem)
+                print("replaced", os.path.relpath(os.path.join(dp, f), stage).replace("\\", "/"), "with", OWN_EMBLEM)
     tmp = out + ".tmp"
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as z:
         for dp, _dn, fn in os.walk(stage):

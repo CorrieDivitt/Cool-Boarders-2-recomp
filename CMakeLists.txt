@@ -46,6 +46,9 @@ psxrecomp_add_game_runtime(psx-runtime
     DEFAULT_GAME_CONFIG_PATH "game.toml"
     MAX_PLAYERS 2
     APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/assets/psxrecomp.ico"
+    # The project's own emblem in the launcher header, in place of recomp-ui's
+    # PlayStation logo (a Sony trademark; tools/kit_prune.py keeps it out of kits).
+    LAUNCHER_BRAND "${CMAKE_CURRENT_SOURCE_DIR}/assets/launcher_brand.tga"
     # Committed game C (psxrecomp_cli.py generate; git add generated). Release
     # CI configures with -DPSXRECOMP_REQUIRE_GAME_C=ON so a checkout without
     # it fails instead of building a setup host.

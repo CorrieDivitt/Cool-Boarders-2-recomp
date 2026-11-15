@@ -127,9 +127,20 @@ def path_reason(path, release):
     return None
 
 
+# Third-party trademark images that framework submodules ship and that must not
+# reach a release. Matched by SHA-256 (a fact about the file, not the file).
+TRADEMARK_SHA256 = {
+    "8e553dbee2753ed85fb81f6f56b5afba98c407d45b65e7e270d766a174b43b32":
+        "PlayStation logo (recomp-ui brand_psx.tga); tools/kit_prune.py replaces it",
+}
+
+
 def content_reason(path, data, hashes):
-    if hashlib.sha256(data).hexdigest() in hashes:
+    digest = hashlib.sha256(data).hexdigest()
+    if digest in hashes:
         return "identical to the game's boot executable"
+    if digest in TRADEMARK_SHA256:
+        return "third-party trademark: " + TRADEMARK_SHA256[digest]
     # A compiled game embeds its dispatch table: nearly every known function
     # address appears as a 32-bit word. A setup host or framework tool does not.
     if SEEDS and b"\0" in data[:8192]:

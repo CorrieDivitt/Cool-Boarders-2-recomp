@@ -56,6 +56,14 @@ machine**, from your disc. The output stays on your machine; do not share it.
 - Release packages are audited with `python tools/ip_guard.py --release <zip>`
   and must not contain a compiled game executable.
 
+## Trademarks
+
+Releases carry no console or publisher logos. The launcher framework
+(recomp-ui) includes a PlayStation logo for its header; this project replaces
+it with its own emblem (`assets/launcher_brand.tga`, original art), the kit
+pruner overwrites the framework's copy, and the IP guard refuses any release
+that still contains it.
+
 ## BIOS
 
 Builds use the bundled OpenBIOS (MIT). Retail PlayStation BIOS dumps are never

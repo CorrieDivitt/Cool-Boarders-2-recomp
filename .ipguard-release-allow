@@ -1,0 +1,4 @@
+# Release-audit exceptions only. Each entry must be framework or original content.
+*bios/openbios.bin        # OpenBIOS (MIT), bundled by PSXRecomp; never a retail BIOS
+*bios/OpenBIOS.LICENSE    # its licence text
+*psxrecomp/bios/*.toml    # framework BIOS profiles (text)

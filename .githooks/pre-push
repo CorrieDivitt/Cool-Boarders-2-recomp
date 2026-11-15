@@ -1,0 +1,11 @@
+#!/bin/sh
+# Re-checks every commit being pushed, including any made with --no-verify.
+PY=$(command -v python3 || command -v python || command -v py)
+[ -n "$PY" ] || { echo "IP guard: Python not found, refusing to push unchecked." >&2; exit 1; }
+ROOT=$(git rev-parse --show-toplevel)
+ZERO=0000000000000000000000000000000000000000
+while read -r lref lsha rref rsha; do
+  [ "$lsha" = "$ZERO" ] && continue            # deleting a branch
+  if [ "$rsha" = "$ZERO" ]; then RANGE="$lsha --not --remotes"; else RANGE="$rsha..$lsha"; fi
+  "$PY" "$ROOT/tools/ip_guard.py" --range "$RANGE" || exit 1
+done

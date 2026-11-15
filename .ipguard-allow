@@ -1,0 +1,2 @@
+# One glob per line, each with a reason. Keep this list short and reviewed.
+assets/psxrecomp.*    # framework app icon from psxrecomp/assets (original art, not from the game)

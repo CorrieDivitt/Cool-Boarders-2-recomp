@@ -18,7 +18,7 @@ measurements only; nothing here is copied from the game. Labels marked
 | 0x80050800-0x8005AB68 | EXE BSS (cleared at boot up to 0x8005AB68) |
 | 0x8005AB68-~0x800A6000 | Overlay slot: one mode module at a time |
 | 0x80057FC2-0x80057FDA | Controller state block (inside BSS) |
-| 0x80057100 / 0x80057102 | Character / board unlock flags (cheat addresses, confirmed referenced) |
+| 0x800570E4-0x80057120 | Progress and session block (see "Progress and unlocks") |
 
 ## Overlays (code modules)
 Fourteen top-level `.BIN` files. All load at **0x8005AB68**; the first word is a
@@ -73,11 +73,98 @@ per module rather than in `symbols.toml`.
   proportional analog steering would be fed in.
 - `MemCardInit` 0x8001787C wraps BIOS InitCARD/StartCARD.
 
+## Progress and unlocks
+INIT resets a block of 16-bit fields at boot; the memory card load then overwrites
+the saved part. `SavePack` (0x80018CC0, one caller at 0x80018898) copies
+0x800570F4-0x8005710D into the save buffer, followed by the button configuration at
+0x80057FB8 and 0x80057FC2; `SaveUnpack` (0x80019154, one caller at 0x80018FE8)
+copies it back after checking a length word of 0x998 and a checksum.
+
+| Address | Meaning | Saved |
+|---|---|---|
+| 0x800570E0 | Selected game mode (word). 4 is set for the attract demo; 0 is probably Competition | no |
+| 0x800570EA | Extra outfits switched on (set by the outfit button code) | no |
+| 0x800570EC | Hard mode active for this run | no |
+| 0x800570EE | Mirror mode active for this run | no |
+| 0x800570F2 | Set to 9 at reset and to 10 when hard mode is chosen (probably the Competition course count) | no |
+| 0x800570FC | Freestyle courses offered: 3, then 10 | yes |
+| 0x800570FE | Mirror Freestyle courses offered: 0, 3, then 10 | yes |
+| 0x80057100 | Rider mask. Bits 0-3 the starting riders (reset value 0x000F), bit 4 Boss, bit 5 Gray, bit 6 Snowman | yes |
+| 0x80057102 | Special board mask. Bit 0 from trick records, bit 1 from total-score records, bit 2 from time records | yes |
+| 0x80057104 | Mirror mode available | yes |
+| 0x80057106 | Hard mode available | yes |
+| 0x80057108 | Per-course mask: first place in time | yes |
+| 0x8005710A | Per-course mask: first place in the second record table | yes |
+| 0x8005710C | Per-course mask: first place in the third record table | yes |
+| 0x80057112 / 0x80057114 | Board editor selection (-1 when none) | no |
+| 0x80057120 | Competition finishing place (0 is first) | no |
+
+Where each is earned:
+- ENDING (0x8005CECC): finishing first in mirror Competition sets rider bit 4.
+  Finishing first outside mirror mode once hard mode is available sets bit 6.
+  Finishing in the top three sets 0x80057104, 3 mirror courses and all 10 courses
+  the first time, and in mirror mode sets 0x80057106 and all 10 mirror courses.
+- Half pipe (HP 0x80089538): a score of 376 or more sets rider bit 5. Big Air
+  Master (TM 0x80089108) sets it when its result value is zero (by the published
+  condition, every trick landed).
+- Freestyle records (FREE 0x8008A094; the same code is in VS, BP and COMB): a
+  special board bit is set when the matching per-course mask reaches five courses,
+  and rider bit 6 when all three masks hold all ten. The check is skipped in
+  mirror mode. Which of the second and third record tables is trick points and
+  which is total score is inferred from the table order, not confirmed in play.
+- Per course there are three record tables of three entries, at
+  0x80057664 + course * 0xC0 + 0x0C (time, lower is better), + 0x30 and + 0x54
+  (higher is better).
+
+Only the menus read these fields to decide what to offer: MAIN_SEL builds the
+rider list from 0x80057100 (0x80063AE8), tests board bits from 0x80057102 and
+takes the course count from 0x800570FC or 0x800570FE; MODE_SEL tests 0x80057104
+with R1 held (mirror) and 0x80057106 with L1 held on Competition (hard). In game
+mode 0 MAIN_SEL zeroes 0x80057102 for as long as it runs and writes its own
+copy back on the way out.
+
+MODE_SEL's menu loop calls four button-code detectors each frame (0x8005CA78,
+0x8005CE90, 0x8005CC60, 0x8005D078). 0x8005CC60 matches the outfit code and sets
+0x800570EA; choosing the attract demo clears it. 0x8005CA78 opens all ten courses
+(0x800570FC = 10) when a shoulder button is held after its sequence; 0x8005CE90
+does something similar through a pointer that has not been traced.
+
+## Controller
+- `PadRead` (0x8001B320, player, analog out) returns the buttons as one 16-bit
+  word, pressed = 1: Up 0x1000, Right 0x2000, Down 0x4000, Left 0x8000,
+  Select 0x0100, Start 0x0800, L2 0x01, R2 0x02, L1 0x04, R1 0x08,
+  Triangle 0x10, Circle 0x20, Cross 0x40, Square 0x80.
+- Gameplay modules combine both pads into one word (player 2 in the high half;
+  FREE 0x800A2B70) and test it through a table of 16 action masks (FREE
+  0x8009DE1C: up, down, left, right, then the face and shoulder actions; jump is
+  the entry at +0x0A, Cross by default).
+- 0x80057FC2 is the saved button configuration, not live pad state.
+
+## Rider object and trick wind-up
+Each gameplay module keeps two rider pointers (the second is used in two-player
+mode): FREE 0x800A39C8, VS 0x800A3260, HP 0x8009B878, BP 0x8009FA4C,
+TM 0x8009D978, OMT 0x8009BD38, SBC1 0x80090A00, SBC2 0x8009B590, COMB 0x800A5B10.
+The rider object is on the heap and has the same layout in all nine modules.
+
+| Offset | Meaning |
+|---|---|
+| +0x01A | Jump state: 2 while crouching with jump held, 3 on release |
+| +0x028 / +0x080 | Buttons this frame / previous frame |
+| +0x744 | Flip wind-up: +1 per frame holding up, -1 holding down, while crouching |
+| +0x748 | Spin wind-up: +1 per frame holding right, -1 holding left, while crouching |
+| +0x754 | Frames the jump button has been held |
+
+Releasing a direction resets its count. At take-off a count that is not zero is
+raised to at least 30 (FREE 0x80068960). In the air the spin speed uses count / 10
+up to 100 and the integer square root (0x8001F8AC) beyond; the flip uses the
+square root throughout (FREE 0x80067C7C, 0x80067DC0). Both are cleared on landing.
+The rider update function is FREE 0x80066DF0.
+
 ## Cheat addresses (from a combined EU/US code list), checked against NTSC-U
 | Address | Meaning | Result |
 |---|---|---|
-| 0x80057100 | Character unlocks | Confirmed: referenced by most modules |
-| 0x80057102 | Board unlocks | Confirmed: referenced by most modules |
+| 0x80057100 | Character unlocks | Confirmed: rider mask, see "Progress and unlocks" |
+| 0x80057102 | Board unlocks | Confirmed: special board mask |
 | 0x8009A868 | Half pipe score | Confirmed: referenced by HP and COMB |
 | 0x8009103C | Race placement | Confirmed: referenced by SBC2 |
 | 0x80130994 | Checkpoint timer | Not verifiable statically (heap memory) |

@@ -1,0 +1,103 @@
+format_version = 6
+id = "cb2.unlocks"
+version = "1.0.0"
+name = "Unlocks"
+author = "Cool Boarders 2 Recompiled"
+description = "Choose which of the game's unlockables are available: the three secret riders, the three special boards, the extra Freestyle courses, mirror mode, hard mode and the extra outfits. Your memory card save is not changed: it keeps only what you have really earned, so unticking something takes it away again."
+resolver = "declarative"
+save_compatibility = "shared"
+
+[[target]]
+game_id = "SCUS-94358"
+
+[[feature]]
+id = "unlocks"
+name = "Unlocks"
+description = "Makes the ticked items selectable in the menus. Only acts on the NTSC-U disc. Quick saves made with this switched off will not load while it is on, and the other way round; memory card saves are not affected."
+group = "Cheats"
+channel = "experimental"
+default_enabled = false
+
+[[option]]
+feature = "unlocks"
+id = "boss"
+label = "Rider: Boss"
+description = "Normally earned by winning Competition in mirror mode."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "gray"
+label = "Rider: Gray (the alien)"
+description = "Normally earned with a high Half Pipe score or by landing every trick in Big Air Master."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "snowman"
+label = "Rider: Snowman"
+description = "Normally earned by holding every Freestyle record on all ten courses."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "board-freestyle"
+label = "Board: Special Freestyle"
+description = "Normally earned with five first places in trick points."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "board-allaround"
+label = "Board: Special All-Around"
+description = "Normally earned with five first places in total score."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "board-alpine"
+label = "Board: Special Alpine"
+description = "Normally earned with five first places in time."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "courses"
+label = "All ten Freestyle courses"
+description = "Normally opened by finishing Competition in the top three."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "mirror"
+label = "Mirror mode"
+description = "Hold R1 and press X when choosing a mode. Normally opened by finishing Competition in the top three."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "hard"
+label = "Hard mode"
+description = "Hold L1 and press X on Competition. Normally opened by finishing mirror Competition in the top three."
+type = "boolean"
+default = "true"
+
+[[option]]
+feature = "unlocks"
+id = "outfits"
+label = "Extra outfits"
+description = "The bonus outfits for Cindy and Irin, as if the outfit button code had been entered on the mode menu."
+type = "boolean"
+default = "true"
+
+[[plugin]]
+feature = "unlocks"
+id = "cb2.unlocks"

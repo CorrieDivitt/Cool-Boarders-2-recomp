@@ -1,0 +1,57 @@
+format_version = 6
+id = "cb2.charge-meter"
+version = "1.0.0"
+name = "Trick Charge Meter"
+author = "Cool Boarders 2 Recompiled"
+description = "Shows how far you have wound up a trick. While you crouch and hold a direction, a cross-shaped gauge fills towards that direction: left and right for the spin, up and down for the flip. It appears only while you are charging or carrying a charge through a jump."
+resolver = "declarative"
+save_compatibility = "shared"
+
+[[target]]
+game_id = "SCUS-94358"
+
+[[feature]]
+id = "charge-meter"
+name = "Trick Charge Meter"
+description = "Each arm has ten cells and is full after about 3.3 seconds. The dim part is the minimum the game gives any charge at take-off; white on top of a full arm is the slower gain from holding longer. Needs the OpenGL renderer. Only acts on the NTSC-U disc."
+group = "HUD"
+channel = "experimental"
+default_enabled = false
+
+[[option]]
+feature = "charge-meter"
+id = "position"
+label = "Position"
+type = "choice"
+default = "bottom"
+
+[[option.choice]]
+value = "bottom"
+label = "Bottom centre"
+
+[[option.choice]]
+value = "top"
+label = "Top centre"
+
+[[option]]
+feature = "charge-meter"
+id = "size"
+label = "Size"
+type = "choice"
+default = "normal"
+
+[[option.choice]]
+value = "small"
+label = "Small"
+
+[[option.choice]]
+value = "normal"
+label = "Normal"
+
+[[option.choice]]
+value = "large"
+label = "Large"
+
+[[plugin]]
+feature = "charge-meter"
+id = "cb2.charge-meter"

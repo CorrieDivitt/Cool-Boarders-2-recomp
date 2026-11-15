@@ -88,3 +88,33 @@ name = "PadStartWrapper"
 emit = false
 status = "guessed"
 note = "Calls BIOS StartPAD (B0:13)"
+
+# ---- Unlocks and controller, 2026-11-15 ----
+
+[[func]]
+pc = 0x80018CC0
+name = "SavePack"
+emit = false
+status = "guessed"
+note = "Copies the progress block 0x800570F4-0x8005710D and the button configuration into the memory card save buffer; wrapped by the Unlocks mod"
+
+[[func]]
+pc = 0x80019154
+name = "SaveUnpack"
+emit = false
+status = "guessed"
+note = "Checks the save buffer (length word 0x998, checksum) and copies it back into the progress block; wrapped by the Unlocks mod"
+
+[[func]]
+pc = 0x8001B320
+name = "PadRead"
+emit = false
+status = "guessed"
+note = "(player, analog out) -> 16-bit button word, pressed = 1"
+
+[[func]]
+pc = 0x8001F8AC
+name = "IntSqrt"
+emit = false
+status = "guessed"
+note = "Integer square root using the GTE leading-zero count; used for trick wind-up"

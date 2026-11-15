@@ -28,13 +28,29 @@
 #define PSX_FN_MemCardInit 0x8001787Cu
 #define func_8001787C MemCardInit  /* alias */
 
+/* guessed: Copies the progress block 0x800570F4-0x8005710D and the button configuration into the memory card save buffer; wrapped by the Unlocks mod */
+#define PSX_FN_SavePack 0x80018CC0u
+#define func_80018CC0 SavePack  /* alias */
+
+/* guessed: Checks the save buffer (length word 0x998, checksum) and copies it back into the progress block; wrapped by the Unlocks mod */
+#define PSX_FN_SaveUnpack 0x80019154u
+#define func_80019154 SaveUnpack  /* alias */
+
 /* guessed: Calls the PadInit wrapper; initialises the pad state block at 0x80057FC2-0x80057FDA */
 #define PSX_FN_InputInit 0x8001B228u
 #define func_8001B228 InputInit  /* alias */
 
+/* guessed: (player, analog out) -> 16-bit button word, pressed = 1 */
+#define PSX_FN_PadRead 0x8001B320u
+#define func_8001B320 PadRead  /* alias */
+
 /* guessed: Reads controller state into the block at 0x80057FC2; target for analog steering in the controls gate */
 #define PSX_FN_InputRead 0x8001B64Cu
 #define func_8001B64C InputRead  /* alias */
+
+/* guessed: Integer square root using the GTE leading-zero count; used for trick wind-up */
+#define PSX_FN_IntSqrt 0x8001F8ACu
+#define func_8001F8AC IntSqrt  /* alias */
 
 /* guessed: Called with (512, 240) by MAIN_SEL, MODE_SEL and ENDING: menu display mode */
 #define PSX_FN_DisplayInit512x240 0x8002EE40u

@@ -55,6 +55,8 @@ psxrecomp_add_game_runtime(psx-runtime
     # Trusted mod plugins written for this project (original code, no game content).
     EXTRAS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/skip_intro.c"
                    "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/loadq_trace.c"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/unlocks.c"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/charge_meter.c"
 )
 
 # Stage runtime configs next to the exe for direct build/ launches. Only copy

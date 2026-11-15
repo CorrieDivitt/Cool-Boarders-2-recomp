@@ -1,0 +1,22 @@
+format_version = 5
+id = "cb2.dev.skip-intro"
+version = "1.0.0"
+name = "Skip Intro"
+author = "Cool Boarders 2 Recompiled"
+description = "Boots straight to the title menu, skipping the warning screen and the publisher and UEP Systems logo screens. Pair it with Settings > Skip FMVs to also skip the opening movie, and fast boot to skip the console logo. Turn it off to see the original intro."
+resolver = "declarative"
+save_compatibility = "shared"
+
+[[target]]
+game_id = "SCUS-94358"
+
+[[feature]]
+id = "skip-intro"
+name = "Skip Intro"
+description = "Skip the warning and logo screens at boot. Only acts on the NTSC-U disc; any other version runs the original intro."
+group = "Convenience"
+default_enabled = false
+
+[[plugin]]
+feature = "skip-intro"
+id = "cb2.skip-intro"

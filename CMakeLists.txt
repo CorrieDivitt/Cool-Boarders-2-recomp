@@ -53,6 +53,8 @@ psxrecomp_add_game_runtime(psx-runtime
     GEN_MARKER "generated/SCUS_943.58_dispatch.c"
     GEN_FULL_GLOB "generated/SCUS_943.58_full_*.c"
     CODEGEN_SETUP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/codegen_setup.c"
+    # Trusted mod plugins written for this project (original code, no game content).
+    EXTRAS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/mods/skip_intro.c"
 )
 
 # Stage runtime configs next to the exe for direct build/ launches. Only copy

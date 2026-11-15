@@ -28,19 +28,19 @@ names only `INIT.BIN`; the table of the other 13 file names lives in INIT.BIN.
 
 | Module | Size | Ends at | Notes |
 |---|---|---|---|
-| INIT | 19,496 | 0x8005F790 | Holds the module name table |
-| MAIN_SEL | 139,850 | 0x8007CDB2 | Menu, 512x240 display |
-| MODE_SEL | 164,120 | 0x80082C80 | Menu, 512x240 display |
+| INIT | 19,496 | 0x8005F790 | Boot: system and save setup, intro screens; holds the module name table |
+| MAIN_SEL | 139,850 | 0x8007CDB2 | Menus (title, options), 512x240 display |
+| MODE_SEL | 164,120 | 0x80082C80 | Mode select menus, 512x240 display |
 | BDEDIT | 34,464 | 0x80063208 | Board editor (confirmed in play) |
 | ENDING | 108,172 | 0x800751F4 | Ending, 512x240 display; not yet reached in play |
-| FREE | 299,608 | 0x800A3DC0 | Gameplay |
+| FREE | 299,608 | 0x800A3DC0 | Gameplay: Freestyle (confirmed in play) |
 | VS | 297,720 | 0x800A3660 | Gameplay: two-player versus (confirmed in play) |
 | HP | 266,504 | 0x8009BC70 | Gameplay: half pipe (confirmed in play; score at 0x8009A868) |
-| BP | 283,488 | 0x8009FEC8 | Gameplay |
-| TM | 291,432 | 0x800A1DD0 | Gameplay |
-| OMT | 267,712 | 0x8009C128 | Gameplay |
-| SBC1 | 221,832 | 0x80090DF0 | Gameplay |
-| SBC2 | 265,768 | 0x8009B990 | Gameplay (uses race placement at 0x8009103C) |
+| BP | 283,488 | 0x8009FEC8 | Gameplay: Board Park (confirmed in play) |
+| TM | 291,432 | 0x800A1DD0 | Gameplay: Big Air Contest or Big Air Master (which one not yet confirmed) |
+| OMT | 267,712 | 0x8009C128 | Gameplay: Big Air Contest or Big Air Master (which one not yet confirmed) |
+| SBC1 | 221,832 | 0x80090DF0 | Gameplay: Competition (likely) |
+| SBC2 | 265,768 | 0x8009B990 | Gameplay: Competition (likely; uses race placement at 0x8009103C) |
 | COMB | 308,128 | 0x800A5F08 | Gameplay: probably the half-pipe stage of competition mode (uses the half-pipe score); not yet reached in play |
 
 Coverage (overlay capture, 15 Nov 2026): 12 of 14 modules reached in play; COMB and
@@ -83,6 +83,6 @@ per module rather than in `symbols.toml`.
 | 0x80130994 | Checkpoint timer | Not verifiable statically (heap memory) |
 
 ## Not yet known
-- Which menu mode loads FREE, BP, TM, OMT, SBC1 and SBC2 (all reached in play; exact mapping unconfirmed).
+- Which of TM and OMT is Big Air Contest and which is Big Air Master; confirming SBC1, SBC2 and COMB as the Competition stages.
 - File formats (.FBD, .PMD, .DAT, .NPC, .DEM).
 - Projection and culling sites for widescreen.

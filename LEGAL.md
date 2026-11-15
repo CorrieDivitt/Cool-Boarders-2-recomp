@@ -19,6 +19,13 @@ Some files record *facts* about the disc so the tools can recognise a correct
 copy: checksums, track counts, memory addresses and function start addresses.
 These identify the disc; they do not reproduce any of it.
 
+## Licence
+
+The original work in this repository is licensed under the PolyForm
+Noncommercial License 1.0.0 (see `LICENSE`). Builds and kits include the
+PSXRecomp framework, which uses the same licence, so they may not be used
+commercially.
+
 ## Bring your own disc
 
 You must supply your own legally obtained copy of the game, dumped yourself

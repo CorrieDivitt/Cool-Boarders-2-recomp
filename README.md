@@ -41,6 +41,12 @@ Never commit anything from the disc. The hooks and the IP guard CI check block
 it, but read [LEGAL.md](LEGAL.md) first. Notes, symbol names, addresses and
 original code are welcome.
 
+## Licence
+
+This project's own code is licensed under the
+[PolyForm Noncommercial License 1.0.0](LICENSE), matching the PSXRecomp
+framework: free to use, share and modify, not for commercial use.
+
 ## Credits
 
 - [PSXRecomp](https://github.com/RetroPortingToolKit/psxrecomp) and

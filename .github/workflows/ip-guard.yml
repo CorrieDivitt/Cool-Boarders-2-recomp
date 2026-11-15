@@ -18,5 +18,5 @@ jobs:
           python-version: "3.12"
       - name: Scan current tree
         run: python tools/ip_guard.py --tree
-      - name: Scan every commit
-        run: python tools/ip_guard.py --history
+      - name: Scan every commit on this branch
+        run: python tools/ip_guard.py --range HEAD

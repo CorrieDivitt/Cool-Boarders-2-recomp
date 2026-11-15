@@ -17,7 +17,11 @@
  * WHAT THIS MOD DOES
  *
  * It only reads. Every VBlank it copies the two counts and the rider state to
- * host variables; the title HUD layer then draws a cross-shaped gauge over the
+ * host variables. The counts are left as they were when a run ends, so the
+ * gauge is shown only while the game is still updating that rider (a
+ * declining hook on each module's rider update function stamps the time) and,
+ * once the crouch ends, for at most HOLD_VBLANKS (a long jump). The title HUD
+ * layer then the title HUD layer then draws a cross-shaped gauge over the
  * finished frame: the arm for the direction being held fills up, ten cells an
  * arm, full at a count of 100 (3.3 seconds). A dim fill marks the minimum the
  * take-off will raise the count to, and a white fill shows the slower growth
@@ -44,6 +48,8 @@
 #define COUNT_FULL        100      /* linear range of the spin */
 #define COUNT_MIN_LAUNCH  30
 #define CELLS             10
+#define STALE_VBLANKS     6        /* rider not updated for this long: run over or paused */
+#define HOLD_VBLANKS      240      /* show a carried charge this long after the crouch */
 
 /* Address of the two rider pointers in each gameplay module. */
 static uint32_t rider_table(int module) {
@@ -61,6 +67,27 @@ static uint32_t rider_table(int module) {
     }
 }
 
+/* Each module's rider update function (called with the rider in a0). */
+static uint32_t rider_update_fn(int module) {
+    switch (module) {
+    case CB2_MOD_FREE: return 0x80066DF0u;
+    case CB2_MOD_VS:   return 0x8006624Cu;
+    case CB2_MOD_HP:   return 0x80065104u;
+    case CB2_MOD_BP:   return 0x80064F38u;
+    case CB2_MOD_TM:   return 0x80064FCCu;
+    case CB2_MOD_OMT:  return 0x80064FF8u;
+    case CB2_MOD_SBC1: return 0x80065290u;
+    case CB2_MOD_SBC2: return 0x80066FB0u;
+    case CB2_MOD_COMB: return 0x80065F5Cu;
+    default:           return 0u;
+    }
+}
+
+/* Host-only presentation state (emulation thread). */
+static uint32_t s_vblank;              /* VBlanks since activation */
+static uint32_t s_updated[2];          /* s_vblank when each rider was last updated */
+static uint32_t s_crouched[2];         /* s_vblank when each rider last crouched */
+
 /* One sample per rider, packed so the render thread reads it in one load:
  * bit 0 visible, bit 1 crouching, bits 16-31 spin, bits 32-47 flip. */
 static _Atomic uint64_t s_sample[2];
@@ -70,13 +97,16 @@ static _Atomic int s_size_pct = 100;  /* option: 75 / 100 / 150 */
 
 static int32_t clamp16(int32_t v) { return v > 32767 ? 32767 : v < -32767 ? -32767 : v; }
 
-static uint64_t sample_rider(uint32_t rider) {
+static uint64_t sample_rider(int i, uint32_t rider) {
     /* A rider is a heap object in main RAM; anything else is not one. */
     if (rider < 0x80010000u || rider >= 0x80200000u - 0x800u || (rider & 3u)) return 0u;
+    if (s_vblank - s_updated[i] > STALE_VBLANKS) return 0u;
     int32_t spin = (int32_t)psx_mod_read_word(rider + RIDER_SPIN);
     int32_t flip = (int32_t)psx_mod_read_word(rider + RIDER_FLIP);
     int crouch = (int16_t)psx_mod_read_half(rider + RIDER_STATE) == STATE_CROUCH;
-    if (!crouch && spin == 0 && flip == 0) return 0u;
+    if (crouch) s_crouched[i] = s_vblank;
+    if (!crouch && (spin == 0 && flip == 0)) return 0u;
+    if (!crouch && s_vblank - s_crouched[i] > HOLD_VBLANKS) return 0u;
     if (spin > 100000 || spin < -100000 || flip > 100000 || flip < -100000) return 0u;
     return 1u | (crouch ? 2u : 0u) |
            ((uint64_t)(uint16_t)clamp16(spin) << 16) |
@@ -84,12 +114,13 @@ static uint64_t sample_rider(uint32_t rider) {
 }
 
 static void meter_vblank(void) {
+    s_vblank++;
     int module = cb2_resident_module();
     uint32_t table = rider_table(module);
     int riders = !table ? 0 : (module == CB2_MOD_VS ? 2 : 1);
     for (int i = 0; i < 2; i++)
         atomic_store(&s_sample[i],
-                     i < riders ? sample_rider(psx_mod_read_word(table + (uint32_t)i * 4u)) : 0u);
+                     i < riders ? sample_rider(i, psx_mod_read_word(table + (uint32_t)i * 4u)) : 0u);
     atomic_store(&s_riders, riders);
 }
 
@@ -242,6 +273,25 @@ static void meter_draw(int width, int height, void* ctx) {
 
 /* ---- plugin wiring ------------------------------------------------------ */
 
+/* $a0 on entry. CPUState (runtime cpu_state.h) begins with uint32_t gpr[32];
+ * reading it through that prefix avoids pulling the whole CPU header in. */
+static uint32_t cpu_rider_arg(struct CPUState* cpu) { return ((const uint32_t*)(const void*)cpu)[4]; }
+
+/* Rider update entry: note which rider the game is updating, then let the
+ * original run. Every module has other code at the other modules' addresses,
+ * so each hook checks that its own module is the one resident. */
+static void note_update(struct CPUState* cpu, int module) {
+    if (cb2_resident_module() != module) return;
+    uint32_t table = rider_table(module), rider = cpu_rider_arg(cpu);
+    for (int i = 0; i < 2; i++)
+        if (psx_mod_read_word(table + (uint32_t)i * 4u) == rider) s_updated[i] = s_vblank;
+}
+#define CB2_UPDATE_HOOK(M) \
+    static int hook_##M(struct CPUState* cpu) { note_update(cpu, CB2_MOD_##M); return 0; }
+CB2_UPDATE_HOOK(FREE) CB2_UPDATE_HOOK(VS) CB2_UPDATE_HOOK(HP) CB2_UPDATE_HOOK(BP)
+CB2_UPDATE_HOOK(TM) CB2_UPDATE_HOOK(OMT) CB2_UPDATE_HOOK(SBC1) CB2_UPDATE_HOOK(SBC2)
+CB2_UPDATE_HOOK(COMB)
+
 static void read_options(void) {
     char v[16];
     int top = 0, size = 100;
@@ -256,6 +306,8 @@ static void meter_activate(void) {
     atomic_store(&s_sample[0], 0u);
     atomic_store(&s_sample[1], 0u);
     atomic_store(&s_riders, 0);
+    s_vblank = 1000u;                       /* nothing counts as recently updated */
+    s_updated[0] = s_updated[1] = s_crouched[0] = s_crouched[1] = 0u;
     read_options();
     /* The HUD layer is session-scoped: the runtime clears it before every
      * activation and when the renderer shuts down. */
@@ -272,4 +324,13 @@ PSX_MOD_CONSTRUCTOR(register_cb2_charge_meter) {
     (void)psx_mod_register_activation_plugin("cb2.charge-meter", meter_activate);
     (void)psx_mod_register_vblank_plugin("cb2.charge-meter", meter_vblank);
     (void)psx_mod_register_option_changed_plugin("cb2.charge-meter", meter_option_changed);
+    /* Pre-hooks that always decline: the original runs and charges its own time. */
+    static const struct { int module; PSXModFunctionOverrideFn fn; } hooks[] = {
+        { CB2_MOD_FREE, hook_FREE }, { CB2_MOD_VS, hook_VS },     { CB2_MOD_HP, hook_HP },
+        { CB2_MOD_BP, hook_BP },     { CB2_MOD_TM, hook_TM },     { CB2_MOD_OMT, hook_OMT },
+        { CB2_MOD_SBC1, hook_SBC1 }, { CB2_MOD_SBC2, hook_SBC2 }, { CB2_MOD_COMB, hook_COMB },
+    };
+    for (unsigned i = 0; i < sizeof hooks / sizeof hooks[0]; i++)
+        (void)psx_mod_register_function_override("cb2.charge-meter:rider-update",
+            rider_update_fn(hooks[i].module), hooks[i].fn, NULL, 0, 0);
 }

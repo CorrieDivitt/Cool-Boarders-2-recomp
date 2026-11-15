@@ -158,7 +158,11 @@ Releasing a direction resets its count. At take-off a count that is not zero is
 raised to at least 30 (FREE 0x80068960). In the air the spin speed uses count / 10
 up to 100 and the integer square root (0x8001F8AC) beyond; the flip uses the
 square root throughout (FREE 0x80067C7C, 0x80067DC0). Both are cleared on landing.
-The rider update function is FREE 0x80066DF0.
+The rider update function (rider in a0, called once per rider per game frame)
+is at FREE 0x80066DF0, VS 0x8006624C, HP 0x80065104, BP 0x80064F38, TM 0x80064FCC,
+OMT 0x80064FF8, SBC1 0x80065290, SBC2 0x80066FB0, COMB 0x80065F5C. The wind-up
+counts are not cleared when a run ends, so stale values stay in the rider object
+through the results screen.
 
 ## Cheat addresses (from a combined EU/US code list), checked against NTSC-U
 | Address | Meaning | Result |

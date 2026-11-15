@@ -2,8 +2,8 @@
 """Prune the self-compile kit stage and rebuild its zip.
 
 The framework's kit packager stages the whole psxrecomp/ and recomp-ui/ trees.
-Players need neither the framework's tests, test ROMs, docs and local caches,
-nor recomp-ui's art for other consoles (which includes third-party box art).
+Players don't need the developer's local build leftovers, nor recomp-ui's
+art for other consoles (which includes third-party box art).
 This removes them from the stage and re-zips it, so the IP audit runs on
 exactly what ships.
 
@@ -12,11 +12,11 @@ Usage: python tools/kit_prune.py <stage_dir> <zip_path>
 import os, shutil, sys, zipfile
 
 PRUNE_DIRS = [
-    "psxrecomp/runtime/tests",          # framework test fixtures (synthetic memcards etc.)
-    "psxrecomp/tools/cycle_testrom",     # framework CPU timing test ROM
-    "psxrecomp/docs",                    # developer documentation
-    "psxrecomp/.cache",                  # local download/extract cache
-    "psxrecomp/recompiler/build",        # framework developer build (emitters ship separately)
+    # Only local build leftovers. Everything else in psxrecomp/ stays: the
+    # player's first-run build configures with tests on and references tests,
+    # docs and test ROMs (removing runtime/tests broke the emitter configure).
+    "psxrecomp/.cache",                  # local download/extract cache (recreated on demand)
+    "psxrecomp/recompiler/build",        # developer's emitter build (absolute local paths)
 ]
 KEEP_CONSOLE = "psx"                     # recomp-ui/assets/consoles/<console>: only PlayStation is used
 

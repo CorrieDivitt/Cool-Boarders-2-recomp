@@ -7,3 +7,6 @@ psxrecomp/overlay_toolchain/bios/*.toml        # same profiles, staged for the o
 psxrecomp/overlay_toolchain/tcc/lib/*.a        # TinyCC runtime libraries (overlay compiler)
 psxrecomp/recompiler/lib/rabbitizer/*          # rabbitizer MIPS disassembler (MIT); its "generated" headers are its own tables
 psxrecomp/recompiler/src/*                     # PSXRecomp recompiler source; contains the generated-code banner as a string
+psxrecomp/runtime/tests/*                      # framework test sources and synthetic fixtures (blank memory cards); needed by the player's build
+psxrecomp/tools/cycle_testrom/*                # framework's own CPU timing test ROM project, not a game
+psxrecomp/docs/*                               # framework documentation (some pages list another title's function addresses)

@@ -42,10 +42,9 @@ overlay_cache = true
 [video]
 renderer = "opengl"
 aspect_ratio = "4:3"
-# Close hairline seams between snow polygons at upscaled resolutions.
-# Both only act on triangles PGXP can prove precise, so enable the PGXP Precision mod too.
-pgxp_depth_buffer = true
-pgxp_seam = "fine"
+# PGXP depth buffer and seam expansion stay OFF: they did not close the snow
+# seams (those are in the original geometry) and the depth buffer made large
+# near polygons vanish (hill faces, half pipe, replays).
 
 [controller]
 default_mode = "digital"

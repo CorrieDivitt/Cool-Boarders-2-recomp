@@ -66,5 +66,7 @@ Step 'Package kit' {
 $zip = Get-ChildItem -Path $Root -Recurse -Filter 'CoolBoarders2Recomp-selfcompile*.zip' -ErrorAction SilentlyContinue |
        Where-Object { $_.FullName -notmatch '\\psxrecomp\\' } | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 if (-not $zip) { throw 'Packaging finished but no kit zip was found.' }
+$stage = Join-Path $Root 'dist\stage-setup-windows-x64'
+Step 'Prune kit (framework tests/docs/caches, other consoles'' art)' { & $py tools/kit_prune.py $stage $zip.FullName }
 Step "IP audit of $($zip.Name)" { & $py tools/ip_guard.py --release $zip.FullName }
 Write-Host "`nKit ready and audited: $($zip.FullName)" -ForegroundColor Green

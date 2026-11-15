@@ -1,4 +1,9 @@
 # Release-audit exceptions only. Each entry must be framework or original content.
 *bios/openbios.bin        # OpenBIOS (MIT), bundled by PSXRecomp; never a retail BIOS
 *bios/OpenBIOS.LICENSE    # its licence text
-*psxrecomp/bios/*.toml    # framework BIOS profiles (text)
+
+psxrecomp/bios/*.toml                          # framework BIOS profiles (text)
+psxrecomp/overlay_toolchain/bios/*.toml        # same profiles, staged for the overlay compiler
+psxrecomp/overlay_toolchain/tcc/lib/*.a        # TinyCC runtime libraries (overlay compiler)
+psxrecomp/recompiler/lib/rabbitizer/*          # rabbitizer MIPS disassembler (MIT); its "generated" headers are its own tables
+psxrecomp/recompiler/src/*                     # PSXRecomp recompiler source; contains the generated-code banner as a string

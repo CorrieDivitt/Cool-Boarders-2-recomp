@@ -132,3 +132,11 @@ psx_freeze_*.json
 *.pdb
 SC??_???.??*
 SL??_???.??*
+
+# Scaffold release builders that package the COMPILED game (built from
+# translated game code). They break the bring-your-own-disc rule, so they stay
+# local and are never committed. The release is the self-compile kit
+# (tools/build_selfcompile_kit.ps1).
+/packaging/
+/scripts/package_release.sh
+/scripts/package_prebuilt_release.sh

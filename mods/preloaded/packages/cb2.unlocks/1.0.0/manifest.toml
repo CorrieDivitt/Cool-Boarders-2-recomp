@@ -15,7 +15,6 @@ id = "unlocks"
 name = "Unlocks"
 description = "Makes the ticked items selectable in the menus. Only acts on the NTSC-U disc. Quick saves made with this switched off will not load while it is on, and the other way round; memory card saves are not affected."
 group = "Cheats"
-channel = "experimental"
 default_enabled = false
 
 [[option]]

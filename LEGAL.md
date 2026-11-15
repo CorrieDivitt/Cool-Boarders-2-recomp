@@ -19,6 +19,15 @@ Some files record *facts* about the disc so the tools can recognise a correct
 copy: checksums, track counts, memory addresses and function start addresses.
 These identify the disc; they do not reproduce any of it.
 
+The mods in `src/mods/` are original code. They refer to the game only by
+memory addresses and by CRC-32 fingerprints of code regions, which they use to
+check that the expected code is loaded before acting. No game code is stored.
+
+The compiled game is never distributed. Releases are a self-compile kit: the
+launcher without any game code, plus the tools that translate and compile the
+game from the player's own disc. Release scripts that would package a compiled
+game are kept out of the repository by `.gitignore`.
+
 ## Licence
 
 The original work in this repository is licensed under the PolyForm

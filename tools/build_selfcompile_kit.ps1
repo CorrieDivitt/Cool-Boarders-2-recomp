@@ -46,6 +46,9 @@ Step 'Configure setup host (no game code)' {
 Step 'Build setup host' { cmake --build $BuildDir --target psx-runtime }
 
 $env:CHERE_INVOKING = '1'
+# Git for Windows has no `zip`; put a Python-backed stand-in on PATH if needed.
+& $bash -c 'command -v zip >/dev/null 2>&1'
+if ($LASTEXITCODE -ne 0) { $env:Path = "$Root\tools\zipshim;$env:Path" }
 if ($RuntimeBin) { $env:PSXRECOMP_RUNTIME_BIN_DIR = $RuntimeBin }
 Step 'Package kit' {
     & $bash psxrecomp/tools/package_setup_host.sh `

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Minimal `zip -r [-q] OUT.zip PATH...` stand-in for Git for Windows, which ships
+# no zip. Used only by tools/build_selfcompile_kit.ps1 when no real zip exists.
+args=(); for a in "$@"; do case "$a" in -r|-q|-rq|-qr) ;; *) args+=("$(cygpath -w "$a" 2>/dev/null || echo "$a")");; esac; done
+PY=$(command -v python || command -v python3 || command -v py)
+exec "$PY" - "${args[@]}" <<'PYEOF'
+import os, sys, zipfile
+out, srcs = sys.argv[1], sys.argv[2:] or ["."]
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+    for s in srcs:
+        if os.path.isdir(s):
+            for dp, dn, fn in os.walk(s):
+                for f in fn:
+                    full = os.path.join(dp, f)
+                    if os.path.abspath(full) == os.path.abspath(out):
+                        continue
+                    z.write(full, os.path.relpath(full, ".").replace("\\", "/"))
+        else:
+            z.write(s, os.path.relpath(s, ".").replace("\\", "/"))
+PYEOF

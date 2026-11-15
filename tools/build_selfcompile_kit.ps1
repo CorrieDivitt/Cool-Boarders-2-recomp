@@ -57,7 +57,7 @@ Step 'Package kit' {
         --project-file game_options.toml --project-file codegen_setup.c --project-file codegen_setup.h `
         --project-file symbols.toml --project-file psx_symbols.h --project-file disc_probe.json `
         --project-file catalog_identity.json --project-file README.md --project-file LEGAL.md `
-        --project-dir seeds --project-dir src
+        --project-dir seeds --project-dir src --project-dir assets
 }
 
 $zip = Get-ChildItem -Path $Root -Recurse -Filter 'CoolBoarders2Recomp-selfcompile*.zip' -ErrorAction SilentlyContinue |
